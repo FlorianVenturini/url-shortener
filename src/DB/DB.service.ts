@@ -1,12 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import { CamelCasePlugin, Kysely, PostgresDialect } from 'kysely';
 import { Pool } from 'pg';
 
-import * as DB from '@/DB/kysely-types';
-import { DATABASE_URL } from '@/utils/env';
+import { DATABASE_URL } from '../utils/env';
+
+import * as DB from './kysely-types';
 
 @Injectable()
-export class DBService {
+export class DBService implements OnModuleDestroy {
     public kysely: Kysely<DB.DB>;
 
     constructor() {
@@ -20,5 +21,9 @@ export class DBService {
             }),
             plugins: [new CamelCasePlugin()],
         });
+    }
+
+    async onModuleDestroy(): Promise<void> {
+        await this.kysely.destroy();
     }
 }

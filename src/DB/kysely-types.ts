@@ -15,6 +15,7 @@ export type Url = {
     id: string;
     createdAt: Generated<Timestamp>;
     redirectTo: string;
+    hostname: string;
     activeUntil: Timestamp | null;
 };
 

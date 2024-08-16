@@ -27,6 +27,23 @@ export class AppService {
             .executeTakeFirst();
     }
 
+    async getUrlWithClicks(id: string): Promise<(Selectable<DB.Url> & { clicks: number }) | null> {
+        const clicks = await this.db.kysely
+            .selectFrom('urlClicks')
+            .select((eb) => eb.fn.countAll().as('totalClicks'))
+            .where('fkUrlId', '=', id)
+            .executeTakeFirst();
+
+        const url = await this.getUrlById(id);
+
+        return url
+            ? {
+                  ...url,
+                  clicks: Number(clicks?.totalClicks ?? '0'),
+              }
+            : null;
+    }
+
     async isHostnameBanned(hostname: string): Promise<boolean> {
         return Boolean(
             await this.db.kysely
@@ -35,6 +52,38 @@ export class AppService {
                 .where('hostname', '=', hostname)
                 .executeTakeFirst(),
         );
+    }
+
+    async banHostname(hostname: string): Promise<Selectable<DB.BannedHostname> | null> {
+        const banInDb = await this.db.kysely
+            .selectFrom('bannedHostnames')
+            .selectAll()
+            .where('hostname', '=', hostname)
+            .executeTakeFirst();
+        if (banInDb) {
+            return banInDb;
+        }
+
+        const ban = await this.db.kysely
+            .insertInto('bannedHostnames')
+            .values({
+                id: makeRandomId(16),
+                hostname,
+            })
+            .returningAll()
+            .executeTakeFirst();
+
+        if (ban) {
+            // If ban was successfully created, disable URLs that match the hostname
+            await this.db.kysely
+                .updateTable('urls')
+                .set({ activeUntil: new Date() })
+                .where('hostname', '=', ban.hostname)
+                .where('activeUntil', 'is', null)
+                .execute();
+        }
+
+        return ban ?? null;
     }
 
     async createShortUrl(redirectTo: URL, activeUntil?: string): Promise<Selectable<DB.Url> | null> {
@@ -58,6 +107,7 @@ export class AppService {
             .values({
                 id: randomId,
                 redirectTo: redirectTo.toString(),
+                hostname: redirectTo.hostname,
                 activeUntil: !activeUntil || Number.isNaN(Date.parse(activeUntil)) ? undefined : new Date(activeUntil),
             })
             .returningAll()

@@ -10,7 +10,8 @@ CREATE TABLE "urls" (
     "id" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "redirect_to" TEXT NOT NULL,
-    "active_until" DATE,
+    "hostname" TEXT NOT NULL,
+    "active_until" TIMESTAMP(3),
 
     CONSTRAINT "urls_pkey" PRIMARY KEY ("id")
 );

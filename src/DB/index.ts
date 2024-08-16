@@ -1,3 +1,3 @@
-import * as DB from '@/DB/kysely-types';
+import * as DB from './kysely-types';
 
 export { DB };
