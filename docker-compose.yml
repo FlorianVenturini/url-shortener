@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+    db:
+        container_name: stoik_db
+        image: postgres:16.2
+        restart: always
+        environment:
+            POSTGRES_USER: stoikdev
+            POSTGRES_PASSWORD: stoikdev
+        volumes:
+            - type: volume
+              source: stoik_db
+              target: /var/lib/postgresql/data
+        ports:
+            - 54321:5432
+
+volumes:
+    stoik_db:
