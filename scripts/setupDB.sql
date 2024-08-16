@@ -1,7 +1,16 @@
+CREATE TABLE "banned_hostnames" (
+    "id" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "hostname" TEXT NOT NULL,
+
+    CONSTRAINT "banned_hostnames_pkey" PRIMARY KEY ("id")
+);
+
 CREATE TABLE "urls" (
     "id" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "redirect_to" TEXT NOT NULL,
+    "active_until" DATE,
 
     CONSTRAINT "urls_pkey" PRIMARY KEY ("id")
 );
@@ -14,4 +23,5 @@ CREATE TABLE "url_clicks" (
     CONSTRAINT "url_clicks_pkey" PRIMARY KEY ("id")
 );
 
+CREATE UNIQUE INDEX "urls_redirect_to_key" ON "urls"("redirect_to");
 ALTER TABLE "url_clicks" ADD CONSTRAINT "url_clicks_fk_url_id_fkey" FOREIGN KEY ("fk_url_id") REFERENCES "urls"("id") ON DELETE CASCADE ON UPDATE CASCADE;

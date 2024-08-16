@@ -5,10 +5,17 @@ export type Generated<T> =
 
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
+export type BannedHostname = {
+    id: string;
+    createdAt: Generated<Timestamp>;
+    hostname: string;
+};
+
 export type Url = {
     id: string;
     createdAt: Generated<Timestamp>;
     redirectTo: string;
+    activeUntil: Timestamp | null;
 };
 
 export type UrlClick = {
