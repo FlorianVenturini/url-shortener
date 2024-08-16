@@ -1,7 +1,20 @@
-import { Controller, Get, NotFoundException, Param, Res } from '@nestjs/common';
+import {
+    BadRequestException,
+    Body,
+    Controller,
+    Get,
+    InternalServerErrorException,
+    NotFoundException,
+    Param,
+    Post,
+    Res,
+} from '@nestjs/common';
 import type { Response } from 'express';
+import { Selectable } from 'kysely';
 
 import { AppService } from './App.service';
+import { CreateShortUrlBody } from './App.type';
+import { DB } from './DB';
 
 @Controller()
 export class AppController {
@@ -18,5 +31,22 @@ export class AppController {
         await this.appService.incrementUrlClickCounter(url.id);
 
         return res.redirect(301, url.redirectTo);
+    }
+
+    @Post()
+    async createShortUrl(@Body() { redirectTo, activeUntil }: CreateShortUrlBody): Promise<Selectable<DB.Url>> {
+        const url = new URL(redirectTo);
+        const isHostnameBanned = await this.appService.isHostnameBanned(url.hostname);
+
+        if (isHostnameBanned) {
+            throw new BadRequestException({ error: 'Hostname is not allowed' });
+        }
+
+        const shortenedUrl = await this.appService.createShortUrl(url, activeUntil);
+        if (!shortenedUrl) {
+            throw new InternalServerErrorException();
+        }
+
+        return shortenedUrl;
     }
 }

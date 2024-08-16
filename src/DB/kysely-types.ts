@@ -25,6 +25,7 @@ export type UrlClick = {
 };
 
 export type DB = {
+    bannedHostnames: BannedHostname;
     urls: Url;
     urlClicks: UrlClick;
 };
