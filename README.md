@@ -11,7 +11,7 @@ $ npm install
 ## Running the app
 
 ```bash
-# Start the database
+# Start the database (it will automatically create the tables)
 $ docker compose up -d
 
 # Start the API

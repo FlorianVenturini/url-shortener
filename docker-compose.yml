@@ -12,6 +12,7 @@ services:
             - type: volume
               source: stoik_db
               target: /var/lib/postgresql/data
+            - ./scripts/setupDB.sql:/docker-entrypoint-initdb.d/setupDB.sql
         ports:
             - 54321:5432
 
