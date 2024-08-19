@@ -10,11 +10,9 @@ import {
     Res,
 } from '@nestjs/common';
 import type { Response } from 'express';
-import { Selectable } from 'kysely';
 
 import { AppService } from './App.service';
 import { CreateShortUrlBody } from './App.type';
-import { DB } from './DB';
 
 @Controller()
 export class AppController {
@@ -34,7 +32,9 @@ export class AppController {
     }
 
     @Post()
-    async createShortUrl(@Body() { redirectTo, activeUntil }: CreateShortUrlBody): Promise<Selectable<DB.Url>> {
+    async createShortUrl(
+        @Body() { redirectTo, activeUntil }: CreateShortUrlBody,
+    ): Promise<{ shortUrl: string; redirectTo: string; activeUntil: Date | null }> {
         const url = new URL(redirectTo);
         const isHostnameBanned = await this.appService.isHostnameBanned(url.hostname);
 

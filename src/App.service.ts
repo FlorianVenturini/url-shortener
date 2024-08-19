@@ -3,6 +3,7 @@ import { Selectable } from 'kysely';
 
 import { DB } from './DB';
 import { DBService } from './DB/DB.service';
+import { API_HOSTNAME } from './utils/env';
 import { makeRandomId } from './utils/randomId';
 
 @Injectable()
@@ -86,14 +87,21 @@ export class AppService {
         return ban ?? null;
     }
 
-    async createShortUrl(redirectTo: URL, activeUntil?: string): Promise<Selectable<DB.Url> | null> {
+    async createShortUrl(
+        redirectTo: URL,
+        activeUntil?: string,
+    ): Promise<{ shortUrl: string; redirectTo: string; activeUntil: Date | null } | null> {
         const urlInDb = await this.db.kysely
             .selectFrom('urls')
             .selectAll()
             .where('redirectTo', '=', redirectTo.toString())
             .executeTakeFirst();
         if (urlInDb) {
-            return urlInDb;
+            return {
+                shortUrl: `${API_HOSTNAME}/${urlInDb.id}`,
+                redirectTo: urlInDb.redirectTo,
+                activeUntil: urlInDb.activeUntil,
+            };
         }
 
         const randomId = makeRandomId(6);
@@ -113,6 +121,12 @@ export class AppService {
             .returningAll()
             .executeTakeFirst();
 
-        return shortenedUrl ?? null;
+        return shortenedUrl
+            ? {
+                  shortUrl: `${API_HOSTNAME}/${shortenedUrl.id}`,
+                  redirectTo: shortenedUrl.redirectTo,
+                  activeUntil: shortenedUrl.activeUntil,
+              }
+            : null;
     }
 }
