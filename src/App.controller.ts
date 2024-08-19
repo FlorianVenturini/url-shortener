@@ -35,6 +35,11 @@ export class AppController {
     async createShortUrl(
         @Body() { redirectTo, activeUntil }: CreateShortUrlBody,
     ): Promise<{ shortUrl: string; redirectTo: string; activeUntil: Date | null }> {
+        // Possible "problem": someone tries to get a shortUrl that already exists but is not active anymore
+        // -> option 1: reactivate the URL (ie. update activeUntil)
+        // -> option 2: throw specific error
+        // -> option 3: create new shortUrl
+        // -> option 4: do nothing and return the shortUrl with activeUntil being in the past (current behavior)
         const url = new URL(redirectTo);
         const isHostnameBanned = await this.appService.isHostnameBanned(url.hostname);
 

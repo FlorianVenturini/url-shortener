@@ -104,7 +104,7 @@ export class AppService {
             };
         }
 
-        const randomId = makeRandomId(6);
+        const randomId = makeRandomId(6); // According to https://zelark.github.io/nano-id-cc -> 37K ids are required to have a 1% probability of collision.
         if (await this.db.kysely.selectFrom('urls').select('id').where('id', '=', randomId).executeTakeFirst()) {
             // ID already exists, try with a new one
             return this.createShortUrl(redirectTo, activeUntil);

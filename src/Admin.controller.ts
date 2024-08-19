@@ -24,7 +24,8 @@ export class AdminController {
     async banHostname(@Body() { hostname }: BanHostnameBody): Promise<Selectable<DB.BannedHostname>> {
         // Possible features:
         //   - handle wildcards for subdomains (ie. `*.example.com`)
-        //   - Make sure hostname is valid (by interrogating a DNS)
+        //   - Make sure hostname is valid (by interrogating a DNS?)
+        //   - Make sure only admins can access this controller (basic password, or more complex auth system using user accounts and roles)
         const ban = await this.appService.banHostname(hostname);
 
         if (!ban) {
